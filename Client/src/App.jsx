@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import ResumePreview from "./components/ResumePreview";
+import EditableCV from "./components/EditableCV";
 import { FaFileUpload, FaMagic, FaSpinner, FaPenNib, FaCheckCircle, FaRocket, FaPalette } from "react-icons/fa";
 import "./App.css";
 
@@ -252,6 +253,12 @@ function App() {
 
             {/* Resume Preview Area */}
             <div className="lg:col-span-8">
+              {/* CV Editor */}
+              <EditableCV
+                data={tailoredData}
+                onUpdate={(updatedData) => setTailoredData(updatedData)}
+              />
+
               <div className="bg-slate-700/30 rounded-3xl p-1 pb-0 backdrop-blur-sm overflow-hidden border border-white/5">
                 <div className="bg-slate-800/50 p-2 flex justify-center border-b border-white/5">
                   <span className="text-xs text-slate-400 uppercase tracking-widest font-semibold">Live Preview</span>

@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pyngrok
+nest-asyncio
+groq
+python-dotenvmultipart
+python-dotenv
+typing-extensions>=4.6.0
+pydantic>=2.0.0
+PyPDF2

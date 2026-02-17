@@ -201,6 +201,86 @@ async def generate_cover_letter(
         print(f"Error generating cover letter: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/cv/analyze")
+async def analyze_cv(
+    file: UploadFile = File(...),
+    job_description: str = Form(...)
+):
+    if not client:
+        raise HTTPException(status_code=500, detail="Server Configuration Error: GROQ_API_KEY not found.")
+
+    try:
+        # 1. Read file content
+        content = await file.read()
+        
+        # 2. Extract text (PDF or Text)
+        if file.filename.endswith(".pdf"):
+            cv_text = extract_text_from_pdf(content)
+        else:
+            cv_text = content.decode("utf-8")
+        
+        if not cv_text:
+             raise HTTPException(status_code=400, detail="Could not extract text from the uploaded file.")
+
+        # 3. Construct Prompt for Groq
+        system_prompt = "You are an expert HR recruiter and ATS specialist."
+        user_prompt = f"""
+        Analyze the following CV against the provided Job Description.
+        
+        Your goal is to determine if the candidate is a good match for the role.
+        
+        Return the result strictly as a JSON object with this structure:
+        {{
+            "match_percentage": 85,
+            "reasoning": "Brief explanation of the score.",
+            "missing_skills": ["Skill 1", "Skill 2"],
+            "recommendation": "Highly Recommended" | "Recommended" | "Not Recommended"
+        }}
+
+        Do NOT include markdown formatting. Just return the raw JSON string.
+
+        CV Content:
+        {cv_text[:10000]}
+
+        Job Description:
+        {job_description[:5000]}
+        """
+
+        # 4. Call Groq API
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": system_prompt,
+                },
+                {
+                    "role": "user",
+                    "content": user_prompt,
+                }
+            ],
+            model=model_name,
+            temperature=0.2,
+            response_format={"type": "json_object"},
+        )
+
+        response_text = chat_completion.choices[0].message.content
+
+        # 5. Parse JSON
+        try:
+            analysis_result = json.loads(response_text)
+            return analysis_result
+        except json.JSONDecodeError:
+            clean_text = response_text.replace("```json", "").replace("```", "").strip()
+            try:
+                analysis_result = json.loads(clean_text)
+                return analysis_result
+            except:
+                raise HTTPException(status_code=500, detail=f"Failed to parse Analysis API response: {response_text}")
+
+    except Exception as e:
+        print(f"Error analyzing CV: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     # Setup ngrok
     port = 8000

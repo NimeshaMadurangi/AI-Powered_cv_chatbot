@@ -10,6 +10,8 @@ function App() {
   const [file, setFile] = useState(null);
   const [jobDescription, setJobDescription] = useState("");
   const [loading, setLoading] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState(null);
   const [tailoredData, setTailoredData] = useState(null);
   const [coverLetter, setCoverLetter] = useState("");
   const [color, setColor] = useState("#e11d48");
@@ -17,6 +19,31 @@ function App() {
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
+    setAnalysisResult(null); // Reset analysis when new file is uploaded
+  };
+
+  const handleAnalyze = async () => {
+    if (!file || !jobDescription) {
+      alert("Please upload a CV and enter a Job Description.");
+      return;
+    }
+
+    setAnalyzing(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("job_description", jobDescription);
+
+    try {
+      const res = await axios.post("http://localhost:8000/cv/analyze", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setAnalysisResult(res.data);
+    } catch (error) {
+      console.error("Error analyzing CV:", error);
+      alert("Analysis failed. Please check the server.");
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   const handleTailor = async () => {
@@ -150,11 +177,63 @@ function App() {
                 </div>
               </div>
 
+              {/* Analysis Result Section */}
+              {analysisResult && (
+                <div className="mt-8 bg-slate-900/50 rounded-2xl p-6 border border-white/10 animate-fade-in-up">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-bold text-white">Match Analysis</h3>
+                    <div className={`px-4 py-1 rounded-full text-sm font-bold ${analysisResult.match_percentage >= 70 ? 'bg-green-500/20 text-green-400' :
+                        analysisResult.match_percentage >= 40 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'
+                      }`}>
+                      {analysisResult.match_percentage}% Match
+                    </div>
+                  </div>
+                  <p className="text-slate-300 mb-4">{analysisResult.reasoning}</p>
+
+                  {analysisResult.missing_skills && analysisResult.missing_skills.length > 0 && (
+                    <div className="mb-4">
+                      <h4 className="text-sm font-semibold text-rose-300 uppercase mb-2">Missing Skills</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {analysisResult.missing_skills.map((skill, idx) => (
+                          <span key={idx} className="px-2 py-1 bg-slate-800 rounded text-xs text-slate-400 border border-slate-700">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="text-sm font-semibold">
+                    Recommendation: <span className="text-white">{analysisResult.recommendation}</span>
+                  </div>
+                </div>
+              )}
+
               {/* Action Button */}
-              <div className="mt-10 flex justify-center">
+              <div className="mt-10 flex justify-center gap-4">
+                <button
+                  onClick={handleAnalyze}
+                  disabled={analyzing || loading}
+                  className={`
+                            relative overflow-hidden px-8 py-4 rounded-xl font-bold text-lg tracking-wide transition-all transform hover:scale-105 active:scale-95 shadow-lg
+                            ${analyzing ? 'bg-slate-700 cursor-not-allowed opacity-70' : 'bg-slate-700 hover:bg-slate-600 text-white border border-slate-500'}
+                        `}
+                >
+                  {analyzing ? (
+                    <span className="flex items-center gap-3">
+                      <FaSpinner className="animate-spin" />
+                      Analyzing...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-3">
+                      Analyze Match
+                    </span>
+                  )}
+                </button>
+
                 <button
                   onClick={handleTailor}
-                  disabled={loading}
+                  disabled={loading || analyzing}
                   className={`
                             relative overflow-hidden px-8 py-4 rounded-xl font-bold text-lg tracking-wide transition-all transform hover:scale-105 active:scale-95 shadow-lg
                             ${loading ? 'bg-slate-700 cursor-not-allowed opacity-70' : 'bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white shadow-rose-500/30'}

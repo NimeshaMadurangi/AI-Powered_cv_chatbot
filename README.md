@@ -1,4 +1,4 @@
-# AI-Powered CV Support Chatbot
+# AI-Powered CV Generator
 
 # Problem
 
@@ -9,3 +9,9 @@
   Undergraduates
 	Fresh Graduates
 	Non-technical job Seekers
+
+# Features
+
+Reccomendatiom
+ATS Score
+CV Builder

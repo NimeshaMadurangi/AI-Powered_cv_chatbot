@@ -248,11 +248,11 @@ async def analyze_cv(
                 "contact_info": true
             }},
             "experience_analysis": {{
-                "required": "5+ years",
-                "current": "4 years",
-                "gap": "1 year",
+                "required": "string (e.g., '5+ years')",
+                "current": "string (e.g., '1 year 8 months')",
+                "gap": "string (e.g., '3 years 4 months')",
                 "status": "Gap" | "Matched" | "Exceeded",
-                "explanation": "Extracted from JD that 5 years are required, but CV history shows only 4 years."
+                "explanation": "string (user-friendly summary)"
             }},
             "strengths": ["Strong action verbs", "Clear formatting", "Includes contact info"],
             "improvements": ["Needs more quantifiable achievements", "Missing specific certifications mentioned in JD"],
@@ -265,14 +265,14 @@ async def analyze_cv(
         Note: 
         - "ats_score" (0-100) is the overall optimization level.
         - "match_percentage" (0-100) is how well the candidate fits the requirements.
-        - "experience_analysis" MUST strictly calculate total "Industry Experience" by mathematically summing only the durations of actual Job Roles (Title @ Company) found in the "Experience" or "Work History" section.
-        - DO NOT count years spent in University/Education. 
-        - DO NOT count time between jobs (gaps) as experience.
-        - DO NOT count "Projects" or "Freelance" unless they are listed as full-time professional roles.
-        - "explanation" field MUST list the specific roles and durations found (e.g., "Role A: 2 yrs + Role B: 1 yr = 3 yrs total").
-        - "strengths" should list specific things the user did correctly in their CV (What is RIGHT).
-        - "improvements" should list specific errors, missing parts, or things to fix (What is WRONG).
-        - "missing_keywords" should list specific industry terms found in the JD but missing in the CV.
+        - **ULTIMATUM: MATHEMATICAL SYNCHRONIZATION**:
+            1. Sum every valid industry job role in months.
+            2. Convert total months to "X years Y months" (12m = 1yr).
+            3. **The "current" field MUST BE IDENTICAL to the result of step 2.** (e.g., If total is 20m, "current" MUST be "1 year 8 months").
+        - **GROUND TRUTH**: Only list roles actually found in text.
+        - **EXPLANATION STYLE**: Concise summary (e.g., "You have 1 year 8 months of Industry Experience..."). **DO NOT show the "Role A + Role B" addition formula in the final explanation string.**
+        - "current" field format: "**X years Y months**".
+        - IGNORE Education and chronological gaps.
 
         Do NOT include markdown formatting. Just return the raw JSON string.
 

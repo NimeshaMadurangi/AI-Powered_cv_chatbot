@@ -4,19 +4,12 @@ url = "http://localhost:8000/cv/analyze"
 
 # Dummy CV Content
 cv_content = """
-John Doe
+Nimesha Madurangi
 Software Engineer
 
-Education:
-- B.Sc. in CS (4 years: 2016 - 2020)
-
 Professional Experience:
-- Full Stack Developer at Tech Co (2 years: 2021 - 2023)
-- Junior Dev at StartUp Inc (1 year: 2020 - 2021)
-
-Projects:
-- Portfolio Website (6 months)
-- E-commerce App (3 months)
+- Trainee Backend Developer at Alpha (2024 Feb - 2025 Jan)
+- Intern Backend Developer at Beta (2025 May - 2026 Jan)
 """
 
 # Dummy Job Description

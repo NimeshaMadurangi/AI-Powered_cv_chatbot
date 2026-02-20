@@ -180,31 +180,131 @@ function App() {
               {/* Analysis Result Section */}
               {analysisResult && (
                 <div className="mt-8 bg-slate-900/50 rounded-2xl p-6 border border-white/10 animate-fade-in-up">
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between mb-6">
                     <h3 className="text-xl font-bold text-white">Match Analysis</h3>
-                    <div className={`px-4 py-1 rounded-full text-sm font-bold ${analysisResult.match_percentage >= 70 ? 'bg-green-500/20 text-green-400' :
+                    <div className="flex gap-3">
+                      <div className={`px-4 py-1 rounded-full text-sm font-bold ${analysisResult.match_percentage >= 70 ? 'bg-green-500/20 text-green-400' :
                         analysisResult.match_percentage >= 40 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'
-                      }`}>
-                      {analysisResult.match_percentage}% Match
-                    </div>
-                  </div>
-                  <p className="text-slate-300 mb-4">{analysisResult.reasoning}</p>
-
-                  {analysisResult.missing_skills && analysisResult.missing_skills.length > 0 && (
-                    <div className="mb-4">
-                      <h4 className="text-sm font-semibold text-rose-300 uppercase mb-2">Missing Skills</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {analysisResult.missing_skills.map((skill, idx) => (
-                          <span key={idx} className="px-2 py-1 bg-slate-800 rounded text-xs text-slate-400 border border-slate-700">
-                            {skill}
-                          </span>
-                        ))}
+                        }`}>
+                        {analysisResult.match_percentage}% Match
+                      </div>
+                      <div className={`px-4 py-1 rounded-full text-sm font-bold ${analysisResult.ats_score >= 70 ? 'bg-indigo-500/20 text-indigo-400' :
+                        analysisResult.ats_score >= 40 ? 'bg-purple-500/20 text-purple-400' : 'bg-pink-500/20 text-pink-400'
+                        }`}>
+                        ATS Score: {analysisResult.ats_score}/100
                       </div>
                     </div>
-                  )}
+                  </div>
 
-                  <div className="text-sm font-semibold">
-                    Recommendation: <span className="text-white">{analysisResult.recommendation}</span>
+                  <div className="grid md:grid-cols-2 gap-8 mb-6">
+                    {/* Left Side: Reasoning & Recommendation */}
+                    <div className="space-y-4">
+                      {/* Experience Analysis Card */}
+                      {analysisResult.experience_analysis && (
+                        <div className="bg-slate-800/40 border border-white/10 rounded-2xl p-4 space-y-3 shadow-inner">
+                          <h4 className="text-[10px] font-bold text-rose-300 uppercase tracking-[2px] mb-1">Experience Gap Analysis</h4>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-slate-900/60 p-3 rounded-xl border border-white/5">
+                              <span className="text-[9px] text-slate-500 uppercase block mb-1">Required</span>
+                              <span className="text-sm font-bold text-white">{analysisResult.experience_analysis.required}</span>
+                            </div>
+                            <div className="bg-slate-900/60 p-3 rounded-xl border border-white/5">
+                              <span className="text-[9px] text-slate-500 uppercase block mb-1">Your Profile</span>
+                              <span className="text-sm font-bold text-white">{analysisResult.experience_analysis.current}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between pt-1">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-2 h-2 rounded-full animate-pulse ${analysisResult.experience_analysis.status === 'Gap' ? 'bg-red-500' :
+                                  analysisResult.experience_analysis.status === 'Matched' ? 'bg-green-500' : 'bg-cyan-400'
+                                }`}></div>
+                              <span className="text-xs font-semibold text-slate-300">Status: {analysisResult.experience_analysis.status}</span>
+                            </div>
+                            {analysisResult.experience_analysis.gap && analysisResult.experience_analysis.status === 'Gap' && (
+                              <span className="text-[10px] bg-red-500/10 text-red-400 px-2 py-0.5 rounded-full border border-red-500/20">
+                                -{analysisResult.experience_analysis.gap} Gap
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-slate-400 italic leading-relaxed">
+                            {analysisResult.experience_analysis.explanation}
+                          </p>
+                        </div>
+                      )}
+
+                      <div>
+                        <h4 className="text-xs font-semibold text-rose-300 uppercase tracking-wider mb-2">Analysis Reasoning</h4>
+                        <p className="text-slate-300 text-sm leading-relaxed">{analysisResult.reasoning}</p>
+                      </div>
+                      <div className="bg-slate-800/50 p-3 rounded-xl border border-white/5">
+                        <span className="text-xs text-slate-400 mr-2 uppercase">Recommendation:</span>
+                        <span className="text-sm font-bold text-white">{analysisResult.recommendation}</span>
+                      </div>
+                    </div>
+
+                    {/* Right Side: ATS Details Breakdown */}
+                    {analysisResult.ats_details && (
+                      <div className="space-y-4">
+                        <h4 className="text-xs font-semibold text-rose-300 uppercase tracking-wider mb-2">ATS Breakdown</h4>
+                        <div className="space-y-3">
+                          {[
+                            { label: "Keyword Match", score: analysisResult.ats_details.keyword_match, color: "bg-indigo-500" },
+                            { label: "Formatting", score: analysisResult.ats_details.formatting, color: "bg-purple-500" },
+                            { label: "Readability", score: analysisResult.ats_details.readability, color: "bg-pink-500" },
+                          ].map((item, i) => (
+                            <div key={i} className="space-y-1">
+                              <div className="flex justify-between text-[10px] text-slate-400">
+                                <span>{item.label}</span>
+                                <span>{item.score}%</span>
+                              </div>
+                              <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                <div className={`h-full ${item.color} transition-all duration-1000`} style={{ width: `${item.score}%` }}></div>
+                              </div>
+                            </div>
+                          ))}
+                          <div className="flex items-center gap-2 pt-1">
+                            <div className={`w-2 h-2 rounded-full ${analysisResult.ats_details.contact_info ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                            <span className="text-[10px] text-slate-400">Contact Information {analysisResult.ats_details.contact_info ? 'Found' : 'Missing'}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-8 pt-4 border-t border-white/5">
+                    {/* Strengths - What is Right */}
+                    {analysisResult.strengths && analysisResult.strengths.length > 0 && (
+                      <div className="space-y-3">
+                        <h4 className="text-xs font-semibold text-green-400 uppercase tracking-wider flex items-center gap-2">
+                          <FaCheckCircle className="text-[10px]" />
+                          What You Did Right
+                        </h4>
+                        <ul className="space-y-1">
+                          {analysisResult.strengths.map((s, i) => (
+                            <li key={i} className="text-[11px] text-slate-300 flex gap-2">
+                              <span className="text-green-500">•</span> {s}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Improvements - What is Wrong */}
+                    {analysisResult.improvements && analysisResult.improvements.length > 0 && (
+                      <div className="space-y-3">
+                        <h4 className="text-xs font-semibold text-orange-400 uppercase tracking-wider flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-orange-400 shadow-[0_0_8px_rgba(251,146,60,0.5)]"></span>
+                          What to Improve
+                        </h4>
+                        <ul className="space-y-1">
+                          {analysisResult.improvements.map((s, i) => (
+                            <li key={i} className="text-[11px] text-slate-300 flex gap-2">
+                              <span className="text-orange-500">•</span> {s}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -267,25 +367,47 @@ function App() {
                   Customization
                 </h3>
                 <div className="space-y-6">
-                  {/* Template Selection */}
+                  {/* Template Selection Gallery */}
                   <div>
-                    <label className="block text-sm text-slate-400 mb-3">Choose Template</label>
-                    <div className="grid grid-cols-3 gap-2">
+                    <label className="block text-sm font-bold text-slate-400 mb-4 uppercase tracking-widest">Choose Your Template</label>
+                    <div className="grid grid-cols-2 md:grid-cols-1 xl:grid-cols-2 gap-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                       {[
-                        { id: 'modern', name: 'Modern', desc: 'Two-column' },
-                        { id: 'classic', name: 'Classic', desc: 'Traditional' },
-                        { id: 'minimal', name: 'Minimal', desc: 'Clean' }
+                        { id: 'modern', name: 'Modern', desc: 'Sleek & balanced' },
+                        { id: 'classic', name: 'Classic', desc: 'Traditional layout' },
+                        { id: 'minimal', name: 'Minimal', desc: 'Clean & focused' },
+                        { id: 'professional', name: 'Professional', desc: 'Standard & trust' },
+                        { id: 'executive', name: 'Executive', desc: 'Premium & bold' },
+                        { id: 'tech', name: 'Developer', desc: 'Modern & technical' },
+                        { id: 'simple', name: 'Ultra-Simple', desc: 'Pure readability' },
+                        { id: 'sidebarLeft', name: 'Sidebar-L', desc: 'Side navigation' },
+                        { id: 'sidebarRight', name: 'Sidebar-R', desc: 'Focus on content' },
+                        { id: 'bold', name: 'Bold', desc: 'High impact' },
+                        { id: 'elegant', name: 'Elegant', desc: 'Refined & serif' },
+                        { id: 'compact', name: 'Compact', desc: 'Dense information' },
+                        { id: 'functional', name: 'Functional', desc: 'Skill-centered' },
+                        { id: 'academic', name: 'Academic', desc: 'Scholarly CV' },
+                        { id: 'creative', name: 'Creative', desc: 'Artistic layout' }
                       ].map((t) => (
                         <button
                           key={t.id}
                           onClick={() => setTemplate(t.id)}
-                          className={`p-3 rounded-lg border-2 transition-all text-center ${template === t.id
-                            ? 'border-rose-500 bg-rose-500/20 text-white'
-                            : 'border-slate-600 hover:border-slate-500 text-slate-300'
+                          className={`group relative p-4 rounded-xl border-2 transition-all duration-300 text-left overflow-hidden ${template === t.id
+                            ? 'border-rose-500 bg-rose-500/10 shadow-[0_0_20px_rgba(225,29,72,0.2)]'
+                            : 'border-slate-800 hover:border-slate-600 bg-slate-900/40 hover:bg-slate-800/60'
                             }`}
                         >
-                          <div className="font-semibold text-xs">{t.name}</div>
-                          <div className="text-[10px] text-slate-400">{t.desc}</div>
+                          {template === t.id && (
+                            <div className="absolute top-0 right-0 p-2">
+                              <FaCheckCircle className="text-rose-500 h-4 w-4" />
+                            </div>
+                          )}
+                          <div className={`font-bold text-sm mb-1 transition-colors ${template === t.id ? 'text-white' : 'text-slate-300 group-hover:text-white'}`}>
+                            {t.name}
+                          </div>
+                          <div className="text-[10px] text-slate-500 group-hover:text-slate-400 font-medium uppercase tracking-tighter">
+                            {t.desc}
+                          </div>
+                          <div className={`mt-3 h-1 w-full rounded-full transition-all duration-500 ${template === t.id ? 'bg-rose-500 w-full' : 'bg-slate-800 w-4 group-hover:w-8'}`}></div>
                         </button>
                       ))}
                     </div>

@@ -103,6 +103,14 @@ async def tailor_cv(
             ]
         }}
 
+        IMPORTANT ATS OPTIMIZATION RULES:
+        1. Use standard section headings (Summary, Skills, Experience, Education).
+        2. Ensure high keyword density by naturally incorporating terms from the Job Description.
+        3. Use simple, clear bullet points for experience descriptions.
+        4. Avoid any complex characters, tables, or non-standard formatting in the text fields.
+        5. Focus on quantifiable achievements (e.g., "Increased sales by 20%").
+        6. Return ONLY the JSON object.
+
         Do NOT include markdown formatting (like ```json). Just return the raw JSON string.
 
         CV Content:
@@ -227,15 +235,44 @@ async def analyze_cv(
         user_prompt = f"""
         Analyze the following CV against the provided Job Description.
         
-        Your goal is to determine if the candidate is a good match for the role.
+        Your goal is to determine if the candidate is a good match for the role, with a strong focus on numerical experience requirements.
         
         Return the result strictly as a JSON object with this structure:
         {{
             "match_percentage": 85,
+            "ats_score": 75,
+            "ats_details": {{
+                "keyword_match": 80,
+                "formatting": 90,
+                "readability": 85,
+                "contact_info": true
+            }},
+            "experience_analysis": {{
+                "required": "5+ years",
+                "current": "4 years",
+                "gap": "1 year",
+                "status": "Gap" | "Matched" | "Exceeded",
+                "explanation": "Extracted from JD that 5 years are required, but CV history shows only 4 years."
+            }},
+            "strengths": ["Strong action verbs", "Clear formatting", "Includes contact info"],
+            "improvements": ["Needs more quantifiable achievements", "Missing specific certifications mentioned in JD"],
             "reasoning": "Brief explanation of the score.",
+            "missing_keywords": ["Python", "AWS", "Docker"],
             "missing_skills": ["Skill 1", "Skill 2"],
             "recommendation": "Highly Recommended" | "Recommended" | "Not Recommended"
         }}
+
+        Note: 
+        - "ats_score" (0-100) is the overall optimization level.
+        - "match_percentage" (0-100) is how well the candidate fits the requirements.
+        - "experience_analysis" MUST strictly calculate total "Industry Experience" by mathematically summing only the durations of actual Job Roles (Title @ Company) found in the "Experience" or "Work History" section.
+        - DO NOT count years spent in University/Education. 
+        - DO NOT count time between jobs (gaps) as experience.
+        - DO NOT count "Projects" or "Freelance" unless they are listed as full-time professional roles.
+        - "explanation" field MUST list the specific roles and durations found (e.g., "Role A: 2 yrs + Role B: 1 yr = 3 yrs total").
+        - "strengths" should list specific things the user did correctly in their CV (What is RIGHT).
+        - "improvements" should list specific errors, missing parts, or things to fix (What is WRONG).
+        - "missing_keywords" should list specific industry terms found in the JD but missing in the CV.
 
         Do NOT include markdown formatting. Just return the raw JSON string.
 

@@ -6,15 +6,23 @@ url = "http://localhost:8000/cv/analyze"
 cv_content = """
 John Doe
 Software Engineer
-Skills: Python, React, JavaScript, SQL
-Experience:
-- 3 years at Tech Co as Full Stack Developer
+
+Education:
+- B.Sc. in CS (4 years: 2016 - 2020)
+
+Professional Experience:
+- Full Stack Developer at Tech Co (2 years: 2021 - 2023)
+- Junior Dev at StartUp Inc (1 year: 2020 - 2021)
+
+Projects:
+- Portfolio Website (6 months)
+- E-commerce App (3 months)
 """
 
 # Dummy Job Description
 job_description = """
-We are looking for a Software Engineer with experience in Python and React.
-Must have strong knowledge of SQL and API development.
+Requirements:
+- 5+ years of Industry Experience.
 """
 
 files = {
